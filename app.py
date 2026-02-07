@@ -119,8 +119,6 @@ def generate_frames():
 
         if detection_result.hand_landmarks:
             # Hand detected
-            # Reset hand drop counter (concept removed, basically handled by stable reset)
-            
             for hand_landmarks in detection_result.hand_landmarks:
                 # Extract features
                 features = []
@@ -206,9 +204,6 @@ def generate_frames():
                 display_text = f"Prediction: {best_prediction}"
                 cv2.putText(frame, display_text, (50, 50), 
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                
-                # Optional: Show progress bar or indicator? 
-                # For now just simple text update.
         
         else:
             # No hand detected
@@ -227,8 +222,6 @@ def generate_frames():
                 # Trigger feedback
                 feedback_start_time = time.time()
                 
-                # PROTIP: pyttsx3 blocks. In a flask app generator, this might freeze the feed.
-                # However, since we are in the generator loop, it will just pause frames for a moment.
                 if engine:
                     print(f"Speaking: {stored_sentence}")
                     try:
@@ -271,6 +264,8 @@ def generate_frames():
 
     cap.release()
 
+# ===== PAGE ROUTES =====
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -282,6 +277,8 @@ def text_to_isl():
 @app.route('/history')
 def history():
     return render_template('history.html')
+
+# ===== API ROUTES =====
 
 @app.route('/video_feed')
 def video_feed():
@@ -299,17 +296,12 @@ def get_word():
 def clear_sentence():
     global stored_sentence
     stored_sentence = ""
-    # Note: local variables in generate_frames cannot be reset from here easily.
-    # But clearing the sentence is the main goal.
     return jsonify({'status': 'cleared', 'sentence': stored_sentence})
 
 @app.route('/backspace_sentence', methods=['POST'])
 def backspace_sentence():
     global stored_sentence
     stored_sentence = stored_sentence[:-1]
-    # If we backspace, we might want to allow immediate re-entry of the same char if needed,
-    # but strictly 'is_sentence_appended' tracks the *current* gesture hold.
-    # It shouldn't block re-typing if the user really wants.
     return jsonify({'status': 'backspaced', 'sentence': stored_sentence})
 
 @app.route('/get_history')

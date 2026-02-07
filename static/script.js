@@ -1,32 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ===== MOBILE SIDEBAR TOGGLE =====
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarClose = document.getElementById('sidebarClose');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-    function openSidebar() {
-        sidebar?.classList.add('active');
-        sidebarOverlay?.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeSidebar() {
-        sidebar?.classList.remove('active');
-        sidebarOverlay?.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    hamburgerBtn?.addEventListener('click', openSidebar);
-    sidebarClose?.addEventListener('click', closeSidebar);
-    sidebarOverlay?.addEventListener('click', closeSidebar);
-
     // ===== COMMON UTILITIES =====
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // ===== MOBILE SIDEBAR TOGGLE =====
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebarClose = document.getElementById('sidebarClose');
+
+    function openSidebar() {
+        sidebar.classList.add('open');
+        sidebarOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', openSidebar);
+    }
+
+    if (sidebarClose) {
+        sidebarClose.addEventListener('click', closeSidebar);
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+
+    // Close sidebar on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSidebar();
+    });
 
     // ===== ISL → SPEECH PAGE =====
     const startCameraBtn = document.getElementById('btn-start-camera');
@@ -194,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         video.style.borderRadius = '12px';
                         video.controls = true;
                         video.autoplay = true;
+                        video.playsInline = true; // Important for mobile
                         video.src = `/isl/${encodeURIComponent(segment.filename)}`;
                         placeholder.appendChild(video);
 
