@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}ISL Keyboard | SignBridge{% endblock %}
+{% block page_title %}ISL Keyboard{% endblock %}
+{% block page_subtitle %}Form sentences by clicking ISL sign images — No camera required{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <!-- ISL Keyboard Grid -->
+    <div class="isl-keyboard-section">
+        <h3 class="section-label">Click a letter to add it to your sentence</h3>
+        <div class="isl-keyboard-grid" id="islKeyboardGrid">
+            {% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
+            <button type="button" class="isl-key-btn" data-letter="{{ letter }}" title="Add '{{ letter }}'">
+                <img src="/images/{{ letter }}.jpg" alt="ISL Sign for {{ letter }}" loading="lazy">
+                <span class="key-label">{{ letter }}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Special Keys -->
+        <div class="special-keys">
+            <button type="button" id="islSpaceBtn" class="btn primary">
+                <span class="btn-icon">␣</span> SPACE
+            </button>
+            <button type="button" id="islBackspaceBtn" class="btn primary">
+                <span class="btn-icon">⌫</span> BACKSPACE
+            </button>
+            <button type="button" id="islClearBtn" class="btn danger">
+                <span class="btn-icon">🗑️</span> CLEAR
+            </button>
+        </div>
+    </div>
+
+    <!-- Output Section (Same as main page) -->
+    <div class="controls-section">
+        <div class="output-group">
+            <label for="islStoredSentence">Formed Sentence</label>
+            <textarea id="islStoredSentence" readonly
+                placeholder="Click letters above to form your sentence..."></textarea>
+        </div>
+
+        <div class="output-group">
+            <label>Language Translation</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <select id="islLanguageSelect"
+                    style="flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 1rem;">
+                    <option value="en">English (Default)</option>
+                    <option value="hi">Hindi (हिंदी)</option>
+                </select>
+                <button id="islTranslateBtn" class="btn primary">Translate</button>
+            </div>
+
+            <textarea id="islTranslatedOutput" readonly placeholder="Translated text will appear here..."
+                style="height: 80px;"></textarea>
+        </div>
+
+        <div class="primary-actions">
+            <button id="islSpeakBtn" class="btn secondary large">
+                <span class="btn-icon">🔊</span> Speak Output
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

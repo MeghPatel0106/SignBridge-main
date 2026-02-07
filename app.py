@@ -427,6 +427,10 @@ def tutorial():
     
     return render_template('tutorial.html', alphabet=alphabet, videos=videos)
 
+@app.route('/isl-keyboard')
+def isl_keyboard():
+    return render_template('isl_keyboard.html')
+
 # ===== API ROUTES =====
 
 @app.route('/video_feed')

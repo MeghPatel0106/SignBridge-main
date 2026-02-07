@@ -535,4 +535,137 @@ document.addEventListener('DOMContentLoaded', () => {
 
         startHistoryPolling();
     }
+
+    // ===== ISL KEYBOARD PAGE =====
+    const islKeyboardGrid = document.getElementById('islKeyboardGrid');
+    const islStoredSentence = document.getElementById('islStoredSentence');
+    const islSpaceBtn = document.getElementById('islSpaceBtn');
+    const islBackspaceBtn = document.getElementById('islBackspaceBtn');
+    const islClearBtn = document.getElementById('islClearBtn');
+    const islTranslateBtn = document.getElementById('islTranslateBtn');
+    const islSpeakBtn = document.getElementById('islSpeakBtn');
+
+    // Handle letter button clicks
+    if (islKeyboardGrid) {
+        islKeyboardGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.isl-key-btn');
+            if (btn && islStoredSentence) {
+                const letter = btn.dataset.letter;
+                islStoredSentence.value += letter;
+
+                // Add visual feedback
+                btn.classList.add('key-pressed');
+                setTimeout(() => btn.classList.remove('key-pressed'), 150);
+            }
+        });
+    }
+
+    // SPACE button
+    if (islSpaceBtn) {
+        islSpaceBtn.addEventListener('click', () => {
+            if (islStoredSentence) {
+                islStoredSentence.value += ' ';
+            }
+        });
+    }
+
+    // BACKSPACE button
+    if (islBackspaceBtn) {
+        islBackspaceBtn.addEventListener('click', () => {
+            if (islStoredSentence) {
+                islStoredSentence.value = islStoredSentence.value.slice(0, -1);
+            }
+        });
+    }
+
+    // CLEAR button
+    if (islClearBtn) {
+        islClearBtn.addEventListener('click', () => {
+            if (islStoredSentence) {
+                islStoredSentence.value = '';
+            }
+        });
+    }
+
+    // Translation handler for ISL Keyboard page
+    if (islTranslateBtn) {
+        islTranslateBtn.addEventListener('click', async () => {
+            const targetLang = document.getElementById('islLanguageSelect')?.value || 'en';
+            const outputArea = document.getElementById('islTranslatedOutput');
+            const textToTranslate = islStoredSentence?.value.trim();
+
+            if (!textToTranslate) {
+                alert("Please create a sentence first!");
+                return;
+            }
+
+            outputArea.value = "Translating...";
+
+            try {
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: textToTranslate,
+                        lang: targetLang
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.translated_text) {
+                    outputArea.value = data.translated_text;
+
+                    // Auto-speak translated text
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(data.translated_text);
+
+                        let langCode = 'en-US';
+                        if (targetLang === "hi") langCode = "hi-IN";
+
+                        utterance.lang = langCode;
+
+                        const voices = window.speechSynthesis.getVoices();
+                        const specificVoice = voices.find(v => v.lang === langCode) ||
+                            voices.find(v => v.lang.includes(targetLang)) ||
+                            voices.find(v => v.name.includes('Google') && v.lang.includes(targetLang));
+
+                        if (specificVoice) {
+                            utterance.voice = specificVoice;
+                        }
+
+                        setTimeout(() => {
+                            window.speechSynthesis.speak(utterance);
+                        }, 50);
+                    }
+                } else if (data.error) {
+                    outputArea.value = "Error: " + data.error;
+                }
+            } catch (err) {
+                console.error("Translation error:", err);
+                outputArea.value = "Failed to translate.";
+            }
+        });
+    }
+
+    // Speak button for ISL Keyboard page
+    if (islSpeakBtn) {
+        islSpeakBtn.addEventListener('click', () => {
+            const translatedOutput = document.getElementById('islTranslatedOutput');
+            const textToSpeak = translatedOutput?.value.trim() || islStoredSentence?.value.trim();
+
+            if (textToSpeak) {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const speech = new SpeechSynthesisUtterance(textToSpeak);
+                    window.speechSynthesis.speak(speech);
+                } else {
+                    alert("Text-to-speech is not supported in this browser.");
+                }
+            } else {
+                alert("No text to speak");
+            }
+        });
+    }
 });
