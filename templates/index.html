@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignBridge</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Using Inter font for professional typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div class="container">
+            <h1 class="app-title">SignBridge</h1>
+            <p class="app-subtitle">Bridging Silence and Speech with ISL</p>
+        </div>
+    </header>
+
+    <main class="main-content container">
+
+        <!-- Left Section: ISL to Speech -->
+        <section class="panel left-panel">
+            <div class="panel-header">
+                <h2>ISL → Speech</h2>
+            </div>
+
+            <div class="video-placeholder" id="webcam-placeholder">
+                <div class="placeholder-content">
+                    <span class="icon">📷</span>
+                    <p>Webcam Feed</p>
+                </div>
+                <!-- Flask Video Stream -->
+                <img id="webcam-video" src="" width="100%" class="hidden" alt="Webcam Feed">
+            </div>
+
+            <div class="output-area">
+                <label for="detectedWord">Detected Word:</label>
+                <input type="text" id="detectedWord" readonly placeholder="Waiting for interaction..."
+                    style="width: 100%; padding: 10px; margin-top: 5px; font-size: 1.2rem;">
+            </div>
+
+            <div class="output-area" style="margin-top: 15px;">
+                <label for="storedSentence">Formed Sentence:</label>
+                <textarea id="storedSentence" readonly placeholder="Sentence builds here..."
+                    style="width: 100%; height: 80px; padding: 10px; margin-top: 5px; font-size: 1.1rem; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <button id="clearBtn"
+                        style="flex: 1; padding: 10px; font-size: 1rem; cursor: pointer; background-color: #ff4d4d; color: white; border: none; border-radius: 5px;">Clear</button>
+                    <button id="backspaceBtn"
+                        style="flex: 1; padding: 10px; font-size: 1rem; cursor: pointer; background-color: #ff9800; color: white; border: none; border-radius: 5px;">Backspace
+                        ⌫</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="btn-start-camera" class="btn primary">Start Camera</button>
+                <button id="btn-speak-output" class="btn secondary">Speak Output</button>
+            </div>
+        </section>
+
+        <!-- Right Section: Speech/Text to ISL -->
+        <section class="panel right-panel">
+            <div class="panel-header">
+                <h2>Speech/Text → ISL</h2>
+            </div>
+
+            <div class="input-area">
+                <label for="text-input">Enter Text or Speech:</label>
+                <div class="input-wrapper">
+                    <input type="text" id="text-input" placeholder="Type text here...">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="btn-show-gesture" class="btn primary">Show ISL Gesture</button>
+            </div>
+
+            <div class="video-placeholder output-video" id="isl-player-placeholder">
+                <div class="placeholder-content">
+                    <span class="icon">▶️</span>
+                    <p>ISL Gesture Video Player</p>
+                </div>
+                <!-- Actual video element would go here -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="app-footer">
+        <div class="container">
+            <p>AI-Based Indian Sign Language Communication Prototype</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}?v=2"></script>
+</body>
+
+</html>

@@ -1,0 +1,222 @@
+/* CSS Variables for Neutral Theme */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+    --panel-bg: #f9f9f9;
+    --primary-btn: #333333;
+    --primary-btn-hover: #000000;
+    --secondary-btn: #ffffff;
+    --secondary-btn-border: #cccccc;
+    --secondary-btn-text: #333333;
+    
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    
+    --container-max-width: 1200px;
+    --spacing-xs: 8px;
+    --spacing-sm: 16px;
+    --spacing-md: 24px;
+    --spacing-lg: 32px;
+    --border-radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+}
+
+/* Header */
+.app-header {
+    background-color: var(--bg-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-md) 0;
+    text-align: center;
+}
+
+.app-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    gap: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+}
+
+.panel {
+    flex: 1; /* 1:1 split */
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Interface Elements */
+.video-placeholder {
+    background-color: #eaeaea;
+    border-radius: var(--border-radius);
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.placeholder-content {
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.placeholder-content .icon {
+    display: block;
+    font-size: 2rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.hidden {
+    display: none;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+}
+
+textarea, input[type="text"] {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm);
+    font-family: var(--font-family);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+    background-color: var(--bg-color);
+}
+
+textarea {
+    resize: none;
+    height: 100px;
+}
+
+input[type="text"] {
+    height: 48px;
+}
+
+textarea:focus, input:focus {
+    outline: none;
+    border-color: var(--primary-btn);
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn.primary {
+    background-color: var(--primary-btn);
+    color: #ffffff;
+}
+
+.btn.primary:hover {
+    background-color: var(--primary-btn-hover);
+}
+
+.btn.secondary {
+    background-color: var(--secondary-btn);
+    color: var(--secondary-btn-text);
+    border-color: var(--secondary-btn-border);
+}
+
+.btn.secondary:hover {
+    background-color: #f0f0f0;
+}
+
+/* Footer */
+.app-footer {
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-md) 0;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column; /* Stack vertically on mobile */
+        gap: var(--spacing-md);
+    }
+    
+    .panel {
+        width: 100%;
+    }
+    
+    .app-title {
+        font-size: 1.75rem;
+    }
+}
