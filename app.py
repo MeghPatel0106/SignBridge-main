@@ -30,6 +30,18 @@ last_valid_prediction = None
 stability_start_time = 0.0
 is_sentence_appended = False
 
+# Conversation History (stores last 10 completed sentences)
+conversation_history = []
+
+def add_to_history(sentence):
+    """Add a sentence to history, keeping only the last 10 entries."""
+    global conversation_history
+    sentence = sentence.strip()
+    if sentence:
+        conversation_history.append(sentence)
+        if len(conversation_history) > 10:
+            conversation_history = conversation_history[-10:]
+
 # TTS and Debug Globals
 engine = None
 try:
@@ -206,6 +218,8 @@ def generate_frames():
             
             # Timeout Logic for Space/TTS
             if (time.time() - last_detected_time > 2.0) and not space_added and has_new_char:
+                # Add completed word/sentence to history before adding space
+                add_to_history(stored_sentence)
                 stored_sentence += " "
                 space_added = True
                 has_new_char = False # Reset flag so we don't add multiple spaces
@@ -261,6 +275,14 @@ def generate_frames():
 def index():
     return render_template('index.html')
 
+@app.route('/text-to-isl')
+def text_to_isl():
+    return render_template('text_to_isl.html')
+
+@app.route('/history')
+def history():
+    return render_template('history.html')
+
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -290,6 +312,18 @@ def backspace_sentence():
     # It shouldn't block re-typing if the user really wants.
     return jsonify({'status': 'backspaced', 'sentence': stored_sentence})
 
+@app.route('/get_history')
+def get_history():
+    """Return conversation history as JSON (newest first)."""
+    return jsonify({'history': list(reversed(conversation_history))})
+
+@app.route('/clear_history', methods=['POST'])
+def clear_history():
+    """Clear all conversation history."""
+    global conversation_history
+    conversation_history = []
+    return jsonify({'status': 'cleared'})
+
 @app.route('/images/<path:filename>')
 def serve_image(filename):
     """Serve ISL gesture images from the images folder."""
@@ -308,6 +342,9 @@ def parse_sentence():
     
     if not sentence:
         return jsonify({'segments': []})
+    
+    # Add to conversation history (Text/Speech → ISL)
+    add_to_history(sentence)
     
     isl_folder = os.path.join(basedir, 'isl')
     

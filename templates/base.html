@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SignBridge{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Left Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-logo">🤟 SignBridge</h1>
+            <p class="sidebar-tagline">Bridging Silence & Speech</p>
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    <span class="nav-icon">📷</span>
+                    <span class="nav-text">ISL → Speech</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('text_to_isl') }}"
+                    class="nav-link {% if request.endpoint == 'text_to_isl' %}active{% endif %}">
+                    <span class="nav-icon">✍️</span>
+                    <span class="nav-text">Text → ISL</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('history') }}"
+                    class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-text">History</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <p>AI-Based ISL Communication</p>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        <header class="page-header">
+            <button class="hamburger-btn" id="hamburgerBtn">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <div class="header-content">
+                <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+                <p class="page-subtitle">{% block page_subtitle %}{% endblock %}</p>
+            </div>
+        </header>
+
+        <main class="page-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}?v=5"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

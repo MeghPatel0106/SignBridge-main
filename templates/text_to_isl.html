@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Text → ISL | SignBridge{% endblock %}
+{% block page_title %}Text → ISL{% endblock %}
+{% block page_subtitle %}Convert text or speech into Indian Sign Language gestures{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="input-section">
+        <div class="input-group">
+            <label for="text-input">Enter Text or Speech</label>
+            <input type="text" id="text-input" placeholder="Type your message here...">
+        </div>
+
+        <div class="primary-actions">
+            <button id="btn-show-gesture" class="btn primary large">
+                <span class="btn-icon">🤟</span> Show ISL Gesture
+            </button>
+        </div>
+    </div>
+
+    <div class="video-container">
+        <div class="video-placeholder output-video" id="isl-player-placeholder">
+            <div class="placeholder-content">
+                <span class="icon">▶️</span>
+                <p>ISL Gesture Video Player</p>
+                <p class="hint">Enter text and click "Show ISL Gesture"</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
