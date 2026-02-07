@@ -107,7 +107,7 @@ def main():
                     row.append(label)
                     
                     # Save to CSV
-                    file_exists = os.path.isfile('balanced_dataset.csv')
+                    file_exists = os.path.isfile('dataset.csv')
                     with open('dataset.csv', mode='a', newline='') as f:
                         writer = csv.writer(f)
                         # Optional: write header if new file, but requirement says just append row

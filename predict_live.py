@@ -13,7 +13,7 @@ import pyttsx3
 def train_model():
     print("Loading dataset...")
     try:
-        df = pd.read_csv('balanced_dataset.csv', header=None)
+        df = pd.read_csv('dataset.csv', header=None)
     except FileNotFoundError:
         print("Error: dataset.csv not found!")
         exit()

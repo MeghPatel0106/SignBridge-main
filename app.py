@@ -265,6 +265,70 @@ def generate_frames():
     cap.release()
 
 # ===== PAGE ROUTES =====
+import requests
+
+@app.route('/translate', methods=['POST'])
+def translate_text():
+    try:
+        data = request.get_json()
+        print(f"DEBUG: /translate called with data: {data}")
+        
+        text = data.get('text', '').strip()
+        target_lang = data.get('lang', 'en')
+        
+        if not text:
+            print("DEBUG: Text is empty")
+            return jsonify({'translated_text': ''})
+            
+        # Official Google Translate API (Single)
+        # dt=t means "translate"
+        # sl=auto means "source language auto-detect"
+        # tl=target_lang means "target language"
+        # q=text means "query text"
+        url = "https://translate.googleapis.com/translate_a/single"
+        params = {
+            'client': 'gtx',
+            'sl': 'en',  # Enforce English source since ISL model outputs English
+            'tl': target_lang,
+            'dt': 't',
+            'q': text
+        }
+        
+        # Add User-Agent to avoid being blocked/throttled by Google
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        print(f"Translating '{text}' to '{target_lang}'...")
+        response = requests.get(url, params=params, headers=headers, timeout=5)
+        
+        print(f"DEBUG: Translating '{text}' to '{target_lang}' used URL: {response.url}")
+        
+        if response.status_code == 200:
+            # Response format: [[["translated_text", "source_text", null, null, 1]], ...]
+            result = response.json()
+            print(f"DEBUG: API Raw Result: {result}")
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                translated_text = ""
+                # Sometimes it splits into multiple sentences
+                for sentence in result[0]:
+                    if sentence and isinstance(sentence, list) and len(sentence) > 0:
+                        translated_text += sentence[0]
+                
+                print(f"DEBUG: Final Translated Text: {translated_text}")
+                return jsonify({
+                    'translated_text': translated_text,
+                    'src': result[2] if len(result) > 2 else 'auto',
+                    'dest': target_lang
+                })
+        
+        print(f"DEBUG: API Request Failed {response.status_code}: {response.text}")
+        return jsonify({'error': 'Translation failed'}), 500
+
+    except Exception as e:
+        print(f"Translation Error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/')
 def index():
@@ -277,6 +341,29 @@ def text_to_isl():
 @app.route('/history')
 def history():
     return render_template('history.html')
+
+@app.route('/tutorial')
+def tutorial():
+    # List of alphabets A-Z
+    alphabet = [chr(i) for i in range(ord('A'), ord('Z') + 1)]
+    
+    # List of ISL videos
+    videos = []
+    isl_folder = os.path.join(basedir, 'isl')
+    video_extensions = ('.mp4', '.avi')
+    
+    if os.path.exists(isl_folder):
+        for f in sorted(os.listdir(isl_folder)):
+            if f.lower().endswith(video_extensions):
+                name_without_ext = os.path.splitext(f)[0]
+                # Capitalize for display (e.g., "hello" -> "Hello")
+                display_name = name_without_ext.capitalize()
+                videos.append({
+                    'filename': f,
+                    'label': display_name
+                })
+    
+    return render_template('tutorial.html', alphabet=alphabet, videos=videos)
 
 # ===== API ROUTES =====
 

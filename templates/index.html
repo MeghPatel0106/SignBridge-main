@@ -33,6 +33,21 @@
             </div>
         </div>
 
+        <div class="output-group">
+            <label>Language Translation</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <select id="languageSelect"
+                    style="flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 1rem;">
+                    <option value="en">English (Default)</option>
+                    <option value="hi">Hindi (हिंदी)</option>
+                </select>
+                <button id="btn-translate" class="btn primary">Translate</button>
+            </div>
+
+            <textarea id="translatedOutput" readonly placeholder="Translated text will appear here..."
+                style="height: 80px;"></textarea>
+        </div>
+
         <div class="primary-actions">
             <button id="btn-start-camera" class="btn primary large">
                 <span class="btn-icon">📷</span> Start Camera

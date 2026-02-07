@@ -149,6 +149,87 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ===== TRANSLATION HANDLER =====
+    const translateBtn = document.getElementById('btn-translate');
+    if (translateBtn) {
+        translateBtn.addEventListener('click', async () => {
+            const storedInput = document.getElementById('storedSentence');
+            const targetLang = document.getElementById('languageSelect').value;
+            const outputArea = document.getElementById('translatedOutput');
+
+            const textToTranslate = storedInput?.value.trim();
+
+            if (!textToTranslate) {
+                alert("Please create a sentence first!");
+                return;
+            }
+
+            outputArea.value = "Translating...";
+
+            try {
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: textToTranslate,
+                        lang: targetLang
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.translated_text) {
+                    outputArea.value = data.translated_text;
+
+                    // Improved Text-to-Speech logic
+                    if ('speechSynthesis' in window) {
+                        // Cancel any ongoing speech
+                        window.speechSynthesis.cancel();
+
+                        const utterance = new SpeechSynthesisUtterance(data.translated_text);
+
+                        // Set basic language
+                        // Adding region codes helps browser find the right voice
+                        let langCode = 'en-US';
+                        if (targetLang === "hi") langCode = "hi-IN"; else if (targetLang === "gu") langCode = "gu-IN";
+
+
+                        utterance.lang = langCode;
+
+                        // Try to find a specific voice for this language
+                        // Browsers load voices asynchronously, so we might need to wait or just checks
+                        const voices = window.speechSynthesis.getVoices();
+
+                        // Priority search for optimal voice:
+                        // 1. Exact match for language code
+                        // 2. Contains language code
+                        // 3. Fallback to Google versions (often higher quality)
+                        const specificVoice = voices.find(v => v.lang === langCode) ||
+                            voices.find(v => v.lang.includes(targetLang)) ||
+                            voices.find(v => v.name.includes('Google') && v.lang.includes(targetLang));
+
+                        if (specificVoice) {
+                            console.log(`Using voice: ${specificVoice.name} (${specificVoice.lang})`);
+                            utterance.voice = specificVoice;
+                        } else {
+                            console.warn(`No specific voice found for ${langCode}, using default.`);
+                        }
+
+                        // Slight delay to ensure previous speech cancelled
+                        setTimeout(() => {
+                            window.speechSynthesis.speak(utterance);
+                        }, 50);
+                    }
+                } else if (data.error) {
+                    outputArea.value = "Error: " + data.error;
+                }
+            } catch (err) {
+                console.error("Translation error:", err);
+                outputArea.value = "Failed to translate.";
+            }
+        });
+    }
+
     // ===== TEXT → ISL PAGE =====
     const showGestureBtn = document.getElementById('btn-show-gesture');
     const textInput = document.getElementById('text-input');

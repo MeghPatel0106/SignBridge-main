@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorial | SignBridge{% endblock %}
+{% block page_title %}ISL Tutorial{% endblock %}
+{% block page_subtitle %}Learn Indian Sign Language Alphabets{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="tutorial-grid">
+        {% for letter in alphabet %}
+        <div class="tutorial-card">
+            <div class="image-wrapper">
+                <img src="{{ url_for('serve_image', filename=letter + '.jpg') }}" alt="ISL Sign for {{ letter }}"
+                    loading="lazy">
+            </div>
+            <div class="letter-label">{{ letter }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2 class="section-title" style="margin-top: var(--spacing-xl);">Video Dictionary</h2>
+    <div class="tutorial-grid">
+        {% for video in videos %}
+        <div class="tutorial-card video-card" onclick="openVideoModal('{{ video.filename }}', '{{ video.label }}')">
+            <div class="image-wrapper video-thumbnail">
+                <!-- Use video tag to show first frame as thumbnail -->
+                <video src="{{ url_for('serve_video', filename=video.filename) }}#t=0.1" preload="metadata"
+                    muted></video>
+                <div class="play-icon">▶</div>
+            </div>
+            <div class="letter-label">{{ video.label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Video Modal -->
+<div id="videoModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeVideoModal()">&times;</span>
+        <h3 id="modalTitle"></h3>
+        <div class="modal-video-container">
+            <video id="modalVideo" controls autoplay>
+                <source id="videoSource" src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('videoModal');
+    const modalVideo = document.getElementById('modalVideo');
+    const videoSource = document.getElementById('videoSource');
+    const modalTitle = document.getElementById('modalTitle');
+
+    function openVideoModal(filename, label) {
+        modalTitle.textContent = label;
+        videoSource.src = "/isl/" + encodeURIComponent(filename);
+        modalVideo.load();
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeVideoModal() {
+        modal.classList.remove('active');
+        modalVideo.pause();
+        modalVideo.currentTime = 0;
+        document.body.style.overflow = '';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            closeVideoModal();
+        }
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeVideoModal();
+        }
+    });
+</script>
+{% endblock %}
