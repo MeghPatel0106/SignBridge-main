@@ -91,8 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Show ISL Gesture Handler
-    showGestureBtn.addEventListener('click', () => {
-        const text = textInput.value.trim().toUpperCase();
+    showGestureBtn.addEventListener('click', async () => {
+        const text = textInput.value.trim();
         if (!text) {
             alert("Please enter text to translate.");
             return;
@@ -107,48 +107,102 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholderContent.style.display = 'none';
         }
 
-        // Remove any existing image
-        let existingImg = placeholder.querySelector('img.isl-gesture-img');
-        if (existingImg) {
-            existingImg.remove();
-        }
+        // Remove any existing media
+        const clearMedia = () => {
+            let existingImg = placeholder.querySelector('img.isl-gesture-img');
+            if (existingImg) existingImg.remove();
+            let existingVideo = placeholder.querySelector('video.isl-gesture-video');
+            if (existingVideo) existingVideo.remove();
+        };
+        clearMedia();
 
-        // Create image element
-        const img = document.createElement('img');
-        img.className = 'isl-gesture-img';
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '300px';
-        img.style.objectFit = 'contain';
-        img.style.display = 'block';
-        img.style.margin = 'auto';
-        placeholder.appendChild(img);
+        try {
+            // Parse the sentence into segments
+            const response = await fetch('/parse_sentence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sentence: text })
+            });
+            const data = await response.json();
+            const segments = data.segments;
 
-        // Get valid letters from input
-        const letters = text.split('').filter(char => /[A-Z]/.test(char));
-
-        if (letters.length === 0) {
-            alert("Please enter alphabetic characters (A-Z).");
-            if (placeholderContent) placeholderContent.style.display = 'block';
-            return;
-        }
-
-        // Display letters one by one
-        let currentIndex = 0;
-
-        function showNextLetter() {
-            if (currentIndex < letters.length) {
-                const letter = letters[currentIndex];
-                img.src = `/images/${letter}.jpg`;
-                img.alt = `ISL Gesture for letter ${letter}`;
-                currentIndex++;
-                setTimeout(showNextLetter, 1000); // Show each letter for 1 second
-            } else {
-                // After showing all, keep the last one visible
-                // Or optionally reset: placeholderContent.style.display = 'block'; img.remove();
+            if (segments.length === 0) {
+                alert("No content to display.");
+                if (placeholderContent) placeholderContent.style.display = 'block';
+                return;
             }
-        }
 
-        showNextLetter();
+            // Play segments sequentially
+            let segmentIndex = 0;
+
+            async function playNextSegment() {
+                if (segmentIndex >= segments.length) {
+                    // All segments done
+                    return;
+                }
+
+                const segment = segments[segmentIndex];
+                segmentIndex++;
+                clearMedia();
+
+                if (segment.type === 'video') {
+                    // Play video
+                    const video = document.createElement('video');
+                    video.className = 'isl-gesture-video';
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.objectFit = 'contain';
+                    video.controls = true;
+                    video.autoplay = true;
+                    video.src = `/isl/${encodeURIComponent(segment.filename)}`;
+                    placeholder.appendChild(video);
+
+                    // Wait for video to end before playing next segment
+                    video.onended = () => {
+                        playNextSegment();
+                    };
+                    video.onerror = () => {
+                        console.error("Error playing video:", segment.filename);
+                        playNextSegment();
+                    };
+                } else if (segment.type === 'letters') {
+                    // Show letters one by one
+                    const letters = segment.letters;
+                    let letterIndex = 0;
+
+                    const img = document.createElement('img');
+                    img.className = 'isl-gesture-img';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    img.style.display = 'block';
+                    img.style.margin = 'auto';
+                    placeholder.appendChild(img);
+
+                    function showNextLetter() {
+                        if (letterIndex < letters.length) {
+                            const letter = letters[letterIndex];
+                            img.src = `/images/${letter}.jpg`;
+                            img.alt = `ISL Gesture for letter ${letter}`;
+                            letterIndex++;
+                            setTimeout(showNextLetter, 1000);
+                        } else {
+                            // Letters done, play next segment
+                            playNextSegment();
+                        }
+                    }
+
+                    showNextLetter();
+                }
+            }
+
+            playNextSegment();
+
+        } catch (err) {
+            console.error("Error parsing sentence:", err);
+            alert("Error loading ISL gesture.");
+            if (placeholderContent) placeholderContent.style.display = 'block';
+        }
     });
 
     // Prediction Polling

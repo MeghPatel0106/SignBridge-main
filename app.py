@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, jsonify, send_from_directory
+from flask import Flask, render_template, Response, jsonify, send_from_directory, request
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -294,6 +294,68 @@ def backspace_sentence():
 def serve_image(filename):
     """Serve ISL gesture images from the images folder."""
     return send_from_directory(os.path.join(basedir, 'images'), filename)
+
+@app.route('/isl/<path:filename>')
+def serve_video(filename):
+    """Serve ISL gesture videos from the isl folder."""
+    return send_from_directory(os.path.join(basedir, 'isl'), filename)
+
+@app.route('/parse_sentence', methods=['POST'])
+def parse_sentence():
+    """Parse a sentence and return segments (videos or letters)."""
+    data = request.get_json()
+    sentence = data.get('sentence', '').strip()
+    
+    if not sentence:
+        return jsonify({'segments': []})
+    
+    isl_folder = os.path.join(basedir, 'isl')
+    
+    # Get all available video names (without extension) - supports .mp4 and .avi
+    available_videos = {}
+    video_extensions = ('.mp4', '.avi')
+    for f in os.listdir(isl_folder):
+        if f.lower().endswith(video_extensions):
+            # Get name without extension
+            name_without_ext = os.path.splitext(f)[0].lower()
+            available_videos[name_without_ext] = f
+    
+    # Split sentence into words
+    words = sentence.split()
+    segments = []
+    i = 0
+    
+    while i < len(words):
+        matched = False
+        
+        # Try to match longest phrase first (up to 5 words)
+        for phrase_len in range(min(5, len(words) - i), 0, -1):
+            phrase = ' '.join(words[i:i+phrase_len])
+            phrase_lower = phrase.lower()
+            
+            if phrase_lower in available_videos:
+                segments.append({
+                    'type': 'video',
+                    'filename': available_videos[phrase_lower],
+                    'text': phrase
+                })
+                i += phrase_len
+                matched = True
+                break
+        
+        if not matched:
+            # No video match, add as letters
+            word = words[i]
+            letters = [c.upper() for c in word if c.isalpha()]
+            if letters:
+                segments.append({
+                    'type': 'letters',
+                    'letters': letters,
+                    'text': word
+                })
+            i += 1
+    
+    return jsonify({'segments': segments})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
