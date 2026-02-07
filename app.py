@@ -267,6 +267,68 @@ def generate_frames():
 # ===== PAGE ROUTES =====
 import requests
 
+@app.route('/translate_to_english', methods=['POST'])
+def translate_to_english():
+    """Translate text from any language to English (for ISL gesture display)."""
+    try:
+        data = request.get_json()
+        print(f"DEBUG: /translate_to_english called with data: {data}")
+        
+        text = data.get('text', '').strip()
+        source_lang = data.get('source_lang', 'auto')
+        
+        if not text:
+            print("DEBUG: Text is empty")
+            return jsonify({'translated_text': ''})
+        
+        # Check if text is already English (ASCII only)
+        if all(ord(c) < 128 for c in text):
+            print("DEBUG: Text is already English, skipping translation")
+            return jsonify({'translated_text': text})
+            
+        # Google Translate API to translate to English
+        url = "https://translate.googleapis.com/translate_a/single"
+        params = {
+            'client': 'gtx',
+            'sl': source_lang,  # Source language (auto-detect or specified)
+            'tl': 'en',  # Target language is always English
+            'dt': 't',
+            'q': text
+        }
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        print(f"Translating '{text}' to English...")
+        response = requests.get(url, params=params, headers=headers, timeout=5)
+        
+        print(f"DEBUG: Translation API URL: {response.url}")
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"DEBUG: API Raw Result: {result}")
+            
+            if result and isinstance(result, list) and len(result) > 0:
+                translated_text = ""
+                for sentence in result[0]:
+                    if sentence and isinstance(sentence, list) and len(sentence) > 0:
+                        translated_text += sentence[0]
+                
+                print(f"DEBUG: Translated to English: {translated_text}")
+                return jsonify({
+                    'translated_text': translated_text,
+                    'original_text': text,
+                    'detected_source': result[2] if len(result) > 2 else source_lang
+                })
+        
+        print(f"DEBUG: Translation API Request Failed {response.status_code}: {response.text}")
+        return jsonify({'translated_text': text, 'error': 'Translation failed, using original'})
+
+    except Exception as e:
+        print(f"Translation to English Error: {e}")
+        return jsonify({'translated_text': text, 'error': str(e)})
+
 @app.route('/translate', methods=['POST'])
 def translate_text():
     try:

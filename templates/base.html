@@ -18,7 +18,7 @@
     <!-- Left Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h1 class="sidebar-logo">🤟 SignBridge</h1>
+            <h1 class="sidebar-logo">SignBridge</h1>
             <p class="sidebar-tagline">Bridging Silence & Speech</p>
             <button class="sidebar-close" id="sidebarClose">✕</button>
         </div>
@@ -27,14 +27,14 @@
             <li class="nav-item">
                 <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
                     <span class="nav-icon">📷</span>
-                    <span class="nav-text">ISL → Speech</span>
+                    <span class="nav-text">Sign-Recognition</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ url_for('text_to_isl') }}"
                     class="nav-link {% if request.endpoint == 'text_to_isl' %}active{% endif %}">
                     <span class="nav-icon">✍️</span>
-                    <span class="nav-text">Text → ISL</span>
+                    <span class="nav-text">Text To Sign</span>
                 </a>
             </li>
             <li class="nav-item">

@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Conversation History | SignBridge{% endblock %}
-{% block page_title %}Conversation History{% endblock %}
-{% block page_subtitle %}View your recent translated conversations{% endblock %}
+{% block title %}History | SignBridge{% endblock %}
+{% block page_title %}History{% endblock %}
+{% block page_subtitle %}View your previous translations and conversations{% endblock %}
 
 {% block content %}
 <div class="content-card">
     <div class="history-header">
         <p class="history-info">Showing last 10 conversations</p>
-        <button id="clearHistoryBtn" class="btn danger">
-            <span class="btn-icon">🗑️</span> Clear History
+        <button id="clearHistoryBtn" class="btn danger" style="background-color: #0f0d0d;">
+            <span class="btn-icon" >🗑️</span> Clear History
         </button>
     </div>
 

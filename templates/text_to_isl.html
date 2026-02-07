@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Text → ISL | SignBridge{% endblock %}
-{% block page_title %}Text → ISL{% endblock %}
+{% block title %}Text To Sign| SignBridge{% endblock %}
+{% block page_title %}Text To Sign{% endblock %}
 {% block page_subtitle %}Convert text or speech into Indian Sign Language gestures{% endblock %}
 
 {% block content %}
@@ -10,6 +10,18 @@
         <div class="input-group">
             <label for="text-input">Enter Text or Speech</label>
             <input type="text" id="text-input" placeholder="Type your message here...">
+        </div>
+
+        <!-- Voice Input Section -->
+        <div class="voice-input-section">
+            <select id="voiceLanguage"
+                style="padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 1rem;">
+                <option value="en-IN">English</option>
+                <option value="hi-IN">Hindi (हिंदी)</option>
+            </select>
+            <button id="btn-voice-input" class="btn secondary">
+                <span class="btn-icon">🎤</span> <span id="voice-btn-text">Start Voice Input</span>
+            </button>
         </div>
 
         <div class="primary-actions">

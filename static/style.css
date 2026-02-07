@@ -161,10 +161,15 @@ body {
     z-index: 999;
     opacity: 0;
     transition: opacity 0.3s ease;
+    pointer-events: none;
+    /* Fix: Allow clicks to pass through when hidden */
 }
 
 .sidebar-overlay.active {
+    display: block;
     opacity: 1;
+    pointer-events: auto;
+    /* Fix: Block clicks when visible */
 }
 
 /* ===== MAIN WRAPPER ===== */
@@ -246,7 +251,24 @@ body {
     border-radius: var(--border-radius);
     padding: var(--spacing-lg);
     box-shadow: var(--shadow-md);
-    max-width: 900px;
+    max-width: 1200px;
+    /* Increased from 900px */
+    width: 100%;
+    /* Ensure it tries to take full width */
+    margin: 0 auto;
+    /* Center it */
+}
+
+/* ... existing code ... */
+
+/* ===== TUTORIAL PAGE ===== */
+.tutorial-grid {
+    display: grid;
+    /* Changed auto-fill to auto-fit to collapse empty tracks */
+    /* Increased min-width to 180px for better visibility */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm);
 }
 
 /* ===== VIDEO CONTAINER ===== */
@@ -354,6 +376,35 @@ textarea:focus {
     display: flex;
     gap: var(--spacing-sm);
     margin-top: var(--spacing-sm);
+}
+
+/* Voice Input Section */
+.voice-input-section {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-top: var(--spacing-sm);
+}
+
+.voice-input-section select {
+    flex: 0 0 auto;
+}
+
+.btn.recording {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    animation: pulse-recording 1s infinite;
+}
+
+@keyframes pulse-recording {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
 }
 
 .primary-actions {
@@ -657,7 +708,7 @@ html {
 /* ===== TUTORIAL PAGE ===== */
 .tutorial-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: var(--spacing-md);
     padding: var(--spacing-sm);
 }

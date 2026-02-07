@@ -41,6 +41,105 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') closeSidebar();
     });
 
+    // ===== VOICE INPUT (Speech Recognition) =====
+    const voiceInputBtn = document.getElementById('btn-voice-input');
+    const voiceLanguageSelect = document.getElementById('voiceLanguage');
+    const voiceTextInput = document.getElementById('text-input');
+    const voiceBtnText = document.getElementById('voice-btn-text');
+
+    let recognition = null;
+    let isRecording = false;
+
+    // Initialize Speech Recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+            isRecording = true;
+            if (voiceInputBtn) {
+                voiceInputBtn.classList.add('recording');
+                if (voiceBtnText) voiceBtnText.textContent = 'Listening...';
+            }
+        };
+
+        recognition.onresult = (event) => {
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            if (voiceTextInput) {
+                // Show interim results while speaking, final when done
+                voiceTextInput.value = finalTranscript || interimTranscript;
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            stopRecording();
+            if (event.error === 'no-speech') {
+                alert('No speech detected. Please try again.');
+            } else if (event.error === 'not-allowed') {
+                alert('Microphone access denied. Please allow microphone access in your browser settings.');
+            }
+        };
+
+        recognition.onend = () => {
+            stopRecording();
+        };
+    }
+
+    function startRecording() {
+        if (!recognition) {
+            alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+            return;
+        }
+
+        const selectedLang = voiceLanguageSelect?.value || 'en-IN';
+        recognition.lang = selectedLang;
+
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error('Error starting recognition:', e);
+        }
+    }
+
+    function stopRecording() {
+        isRecording = false;
+        if (voiceInputBtn) {
+            voiceInputBtn.classList.remove('recording');
+            if (voiceBtnText) voiceBtnText.textContent = 'Start Voice Input';
+        }
+        if (recognition) {
+            try {
+                recognition.stop();
+            } catch (e) {
+                // Ignore errors when stopping
+            }
+        }
+    }
+
+    if (voiceInputBtn) {
+        voiceInputBtn.addEventListener('click', () => {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+    }
+
     // ===== ISL → SPEECH PAGE =====
     const startCameraBtn = document.getElementById('btn-start-camera');
     const speakOutputBtn = document.getElementById('btn-speak-output');
@@ -234,9 +333,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const showGestureBtn = document.getElementById('btn-show-gesture');
     const textInput = document.getElementById('text-input');
 
+    // Helper function to detect if text contains non-English characters
+    function containsNonEnglish(text) {
+        // Check for Hindi (Devanagari), or other non-ASCII characters
+        // English letters, numbers, and common punctuation are ASCII 32-126
+        return /[^\x00-\x7F]/.test(text);
+    }
+
+    // Helper function to translate text to English
+    async function translateToEnglish(text, sourceLang = 'auto') {
+        try {
+            const response = await fetch('/translate_to_english', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text, source_lang: sourceLang })
+            });
+            const data = await response.json();
+            if (data.translated_text) {
+                return data.translated_text;
+            }
+            return text; // Return original if translation fails
+        } catch (err) {
+            console.error('Translation error:', err);
+            return text; // Return original if translation fails
+        }
+    }
+
     if (showGestureBtn) {
         showGestureBtn.addEventListener('click', async () => {
-            const text = textInput?.value.trim();
+            let text = textInput?.value.trim();
             if (!text) {
                 alert("Please enter text to translate.");
                 return;
@@ -256,6 +381,35 @@ document.addEventListener('DOMContentLoaded', () => {
             clearMedia();
 
             try {
+                // Check if text contains non-English characters (e.g., Hindi)
+                // If so, translate to English first before showing ISL gestures
+                if (containsNonEnglish(text)) {
+                    console.log('Detected non-English text, translating to English...');
+
+                    // Show loading indicator
+                    const loadingMsg = document.createElement('p');
+                    loadingMsg.textContent = 'Translating to English...';
+                    loadingMsg.className = 'translation-loading';
+                    loadingMsg.style.textAlign = 'center';
+                    loadingMsg.style.padding = '20px';
+                    loadingMsg.style.color = '#666';
+                    placeholder.appendChild(loadingMsg);
+
+                    // Get the selected voice language to determine source language
+                    const voiceLang = voiceLanguageSelect?.value || 'en-IN';
+                    let sourceLang = 'auto';
+                    if (voiceLang.startsWith('hi')) sourceLang = 'hi';
+
+                    const translatedText = await translateToEnglish(text, sourceLang);
+                    console.log(`Translated: "${text}" → "${translatedText}"`);
+
+                    // Remove loading indicator
+                    loadingMsg.remove();
+
+                    // Use translated text for ISL gestures
+                    text = translatedText;
+                }
+
                 const response = await fetch('/parse_sentence', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
