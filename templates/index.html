@@ -7,13 +7,16 @@
 {% block content %}
 <div class="content-card">
     <div class="video-container">
-        <div class="video-placeholder" id="webcam-placeholder">
+        <div class="video-placeholder" id="webcam-placeholder" style="position: relative;">
             <div class="placeholder-content">
                 <span class="icon">📷</span>
-                <p>Webcam Feed</p>
-                <p class="hint">Click "Start Camera" to begin</p>
             </div>
             <img id="webcam-video" src="" class="hidden" alt="Webcam Feed">
+
+            <button id="btn-start-camera" class="btn primary large"
+                style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; min-width: 200px;">
+                <span class="btn-icon">📷</span> Start Camera
+            </button>
         </div>
     </div>
 
@@ -49,9 +52,6 @@
         </div>
 
         <div class="primary-actions">
-            <button id="btn-start-camera" class="btn primary large">
-                <span class="btn-icon">📷</span> Start Camera
-            </button>
             <button id="btn-speak-output" class="btn secondary large">
                 <span class="btn-icon">🔊</span> Speak Output
             </button>
